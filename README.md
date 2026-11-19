@@ -6,7 +6,7 @@
 >
 > **Not affiliated with or endorsed by OpenAI, ChatGPT or the PhoneBox author.** The original PhoneBox app must be installed separately.
 
-![Static sample preview of the ChatGPT companion dashboard](assets/dashboard-preview.png)
+![Static sample preview of the ChatGPT companion dashboard](assets/dashboard-preview.svg)
 
 *Preview uses sample values. Live values only appear when supplied by PhoneBox.*
 
@@ -88,7 +88,7 @@ The HTML widget is isolated in PhoneBox's sandbox. It sends only the trusted sho
 | `Install-ChatGPTWidget.ps1` | Safe, targeted Windows configuration modifier |
 | `preview.html` | Local browser demo with mocked values |
 | `Publish-To-GitHub.ps1` | Optional guided public-repository publisher |
-| `assets/dashboard-preview.png` | Sample screenshot for the README |
+| `assets/dashboard-preview.svg` | Sample screenshot for the README |
 | `tests/verify.py` | Offline structure checks |
 | `tests/widget.test.cjs` | UI event/shortcut tests using Node.js mocks |
 | `docs/MINI_PROJECT_REPORT.md` | Abstract, objectives, architecture and scope |
