@@ -1,5 +1,8 @@
 # PhoneBox ChatGPT Companion — Mini Project
 
+[![Verify mini project](https://github.com/wtfabhishek1805/phonebox-chatgpt-mini-project/actions/workflows/verify.yml/badge.svg)](https://github.com/wtfabhishek1805/phonebox-chatgpt-mini-project/actions/workflows/verify.yml)
+![MIT License](https://img.shields.io/badge/license-MIT-blue)
+
 **An unofficial ChatGPT-themed dashboard add-on for [PhoneBox](https://github.com/ersinkoc/phonebox).** It turns an old Android phone (such as a Samsung Galaxy J5 Prime) into a companion display for a Windows PC. The add-on changes the **AI Sessions tile**, not the PhoneBox app itself.
 
 > **Status:** Prototype. Static browser preview and automated structural tests are available. The full installer and Android/Windows integration still need to be tested on a real PhoneBox 0.9.22 installation before calling this production-ready.
@@ -92,6 +95,7 @@ The HTML widget is isolated in PhoneBox's sandbox. It sends only the trusted sho
 | `tests/verify.py` | Offline structure checks |
 | `tests/widget.test.cjs` | UI event/shortcut tests using Node.js mocks |
 | `docs/MINI_PROJECT_REPORT.md` | Abstract, objectives, architecture and scope |
+| `docs/DEVICE_VALIDATION.md` | Real-device test checklist and rollback procedure |
 | `PUBLISH.md` | GitHub publishing guide |
 
 ## Verification
@@ -100,6 +104,8 @@ The HTML widget is isolated in PhoneBox's sandbox. It sends only the trusted sho
 python tests/verify.py
 node --test tests/widget.test.cjs
 ```
+
+For real-device checks and rollback steps, see [Device validation checklist](docs/DEVICE_VALIDATION.md).
 
 Open `preview.html` in a browser to see a **demo**, not live phone data. The automated tests cannot guarantee compatibility with a physical Android device. The installer hasn't been executed against the user's personal Windows configuration here.
 
