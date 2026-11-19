@@ -1,0 +1,181 @@
+<!--
+  PhoneBox ChatGPT Companion (community add-on)
+  Designed for PhoneBox 0.9.22's sandboxed Custom HTML widget.
+  Set the Windows-side shortcut id to: chatgpt-open
+  This widget does NOT read ChatGPT browser conversations or Plus usage.
+-->
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #101718;
+    --panel: #162527;
+    --line: #2a4040;
+    --ink: #edf8f4;
+    --muted: #a0b6b2;
+    --brand: #29d6ac;
+  }
+  * { box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; padding: 0; margin: 0; overflow: hidden; }
+  body { font: 500 15px/1.45 system-ui, -apple-system, 'Segoe UI', sans-serif; background: var(--bg); color: var(--ink); }
+  .app { height: 100%; width: 100%; display: flex; flex-direction: column; padding: clamp(12px, 3vh, 22px); gap: clamp(8px, 2vh, 16px); background: radial-gradient(circle at 94% 2%, #18483d 0%, transparent 45%), var(--bg); }
+  .top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .eyebrow { color: var(--brand); font-weight: 800; letter-spacing: .17em; font-size: clamp(10px, 2.2vh, 13px); }
+  .online { display: flex; align-items: center; gap: 6px; color: #a8dfd0; font-size: clamp(10px, 2.1vh, 12px); white-space: nowrap; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: #607776; flex-shrink: 0; }
+  .dot.live { background: #38e6b5; box-shadow: 0 0 8px #38e6b585; }
+  .hero { display:flex; align-items:center; gap: clamp(10px, 2vw, 20px); }
+  .mark { width: clamp(44px, 11vh, 70px); height: clamp(44px, 11vh, 70px); border: 1px solid #3f736a; flex: 0 0 auto; border-radius: 19px; background: #183c37; display: grid; place-items: center; color: #78f6cf; font-size: clamp(28px, 7vh, 43px); font-weight: bold; }
+  h1 { padding: 0; margin: 0; font-size: clamp(21px, 5.5vh, 39px); line-height: 1.1; font-weight: 750; letter-spacing: -.04em; }
+  .sub { color: var(--muted); margin: 3px 0 0; font-size: clamp(11px, 2.5vh, 14px); }
+  .actions { display:flex; align-items:center; gap: 10px; }
+  button { appearance: none; border:0; border-radius: 13px; color:#07392c; background: var(--brand); min-height: 46px; padding: 8px 16px; font: 750 clamp(12px, 2.8vh, 15px)/1.2 system-ui,sans-serif; cursor:pointer; text-align:center; }
+  button:active { transform: scale(.98); }
+  button:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+  .mini { font-size: clamp(10px, 2.2vh, 12px); color: var(--muted); }
+  .stats { display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: clamp(7px, 1.7vw, 12px); }
+  .stat { border:1px solid var(--line); border-radius:12px; padding: clamp(7px, 1.7vh, 12px); background: #132124; min-width: 0; }
+  .stat .name { display:block; color: #9db8b0; letter-spacing: .12em; text-transform:uppercase; font-size: clamp(9px, 2vh, 11px); }
+  .stat .value { display:block; color: #ecf8f2; font-weight: 730; font-size: clamp(17px, 4.4vh, 28px); line-height:1.2; }
+  .sessions { border:1px solid var(--line); background: var(--panel); border-radius:14px; padding: clamp(8px, 2vh, 13px); flex: 1; min-height: 0; display:flex; flex-direction:column; }
+  .section-title { color: #b5cfc6; font-weight:700; letter-spacing:.11em; font-size: clamp(9px, 2vh, 11px); text-transform:uppercase; }
+  #sessionsDetail { overflow:auto; min-height:0; margin-top: 4px; color:#d4eae2; font-size: clamp(11px, 2.5vh, 14px); }
+  .session { padding: 5px 0; border-top: 1px solid #34504d; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+  .session:first-child { border-top:0; }
+  .empty { color:#a7bbb4; }
+  #feedback { color:#b7d1c9; min-height: 1.2em; font-size:clamp(10px,2vh,12px); }
+  .foot { display:flex; justify-content:space-between; gap:8px; font-size:clamp(9px,1.9vh,11px); color:#9bb4ab; }
+  .foot span:last-child { white-space:nowrap; }
+  @media (max-height: 420px) {
+    .app { gap: 7px; padding: 10px 14px; }
+    .sub { display:none; }
+    .actions button { min-height: 34px; }
+    .mark { width:40px; height:40px; font-size:25px; border-radius:11px; }
+    .stat { padding:5px 9px; }
+    .sessions { padding:6px 10px; }
+  }
+</style>
+<main class="app">
+  <div class="top">
+    <div class="eyebrow">OPENAI · DESK COMPANION</div>
+    <div class="online"><i id="connectionDot" class="dot" aria-hidden="true"></i><span id="connection">Waiting for PC</span></div>
+  </div>
+  <div class="hero">
+    <div class="mark" aria-hidden="true">✳</div>
+    <div><h1>ChatGPT</h1><p class="sub">Ready on your Windows PC</p></div>
+  </div>
+  <div class="actions">
+    <button type="button" id="launch">↗ Open ChatGPT on PC</button>
+    <div class="mini">Uses a safe, preconfigured PhoneBox shortcut</div>
+  </div>
+  <div class="stats" aria-label="Live PC statistics">
+    <div class="stat"><span class="name">CPU</span><span class="value" id="cpu">—</span></div>
+    <div class="stat"><span class="name">RAM</span><span class="value" id="ram">—</span></div>
+    <div class="stat"><span class="name">GPU</span><span class="value" id="gpu">—</span></div>
+  </div>
+  <div class="sessions">
+    <div class="section-title">OPENAI CODEX · LOCAL CODING SESSIONS</div>
+    <div id="sessionsDetail" role="status"><span class="empty">Waiting for session data…</span></div>
+  </div>
+  <div id="feedback" role="status"></div>
+  <div class="foot"><span>ChatGPT web history / Plus limits are not exposed by PhoneBox</span><span id="clock">--:--</span></div>
+</main>
+<script>
+(function () {
+  'use strict';
+  // This is an ID, not a URL or arbitrary command. It is defined on the PC.
+  var SHORTCUT_ID = 'chatgpt-open';
+  var byId = function (id) { return document.getElementById(id); };
+  var text = function (id, value) { byId(id).textContent = String(value); };
+
+  function pct(input) {
+    if (typeof input !== 'number' || !Number.isFinite(input)) return '—';
+    return Math.round(input) + '%';
+  }
+  function metric(input) {
+    if (typeof input === 'number') return pct(input);
+    if (input && typeof input === 'object') {
+      if (typeof input.percent === 'number') return pct(input.percent);
+      if (typeof input.usage === 'number') return pct(input.usage);
+      if (typeof input.load === 'number') return pct(input.load);
+    }
+    return '—';
+  }
+  function onState(state) {
+    var pc = state && state.pc;
+    if (!pc) return;
+    text('cpu', metric(pc.cpu));
+    text('ram', metric(pc.ram));
+    text('gpu', metric(pc.gpu));
+    text('connection', 'PC connected');
+    byId('connectionDot').classList.add('live');
+  }
+
+  // PhoneBox's 'work' event may include different shapes across releases.
+  // Only display *explicitly identified* Codex activity; never label Claude
+  // sessions as ChatGPT. When the bridge shape is unknown, show a neutral state.
+  function findSessions(work) {
+    if (!work || typeof work !== 'object') return null;
+    if (Array.isArray(work)) return work;
+    if (Array.isArray(work.sessions)) return work.sessions;
+    if (work.work && Array.isArray(work.work.sessions)) return work.work.sessions;
+    if (Array.isArray(work.aiSessions)) return work.aiSessions;
+    if (work.codex && Array.isArray(work.codex.sessions)) {
+      return work.codex.sessions.map(function (s) {
+        var copy = Object.assign({}, s); copy.provider = 'codex'; return copy;
+      });
+    }
+    return null;
+  }
+  function onWork(work) {
+    var sessions = findSessions(work);
+    var output = byId('sessionsDetail');
+    output.textContent = '';
+    if (sessions === null) {
+      output.textContent = 'Codex activity not available through this PhoneBox event.';
+      return;
+    }
+    var codex = sessions.filter(function (s) {
+      if (!s || typeof s !== 'object') return false;
+      var tool = String(s.provider || s.source || s.tool || s.type || s.client || '').toLowerCase();
+      return tool.indexOf('codex') >= 0;
+    }).slice(0, 3);
+    if (codex.length === 0) {
+      output.textContent = 'No local OpenAI Codex sessions detected.';
+      return;
+    }
+    codex.forEach(function (s) {
+      var row = document.createElement('div');
+      row.className = 'session';
+      var title = s.project || s.name || s.title || s.cwd || 'Codex session';
+      var status = s.status || s.state || 'available';
+      row.textContent = String(title).slice(0, 80) + ' · ' + String(status).slice(0, 24);
+      output.appendChild(row);
+    });
+  }
+
+  byId('launch').addEventListener('click', function () {
+    if (!window.phonebox || typeof window.phonebox.run !== 'function') {
+      text('feedback', 'Open this widget inside the PhoneBox Android panel.');
+      return;
+    }
+    try {
+      window.phonebox.run(SHORTCUT_ID);
+      text('feedback', 'Requested ChatGPT launch on PC.');
+    } catch (e) {
+      text('feedback', 'Shortcut failed. Check the chatgpt-open shortcut in Settings.');
+    }
+  });
+
+  function clock() {
+    text('clock', new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}));
+  }
+  clock();
+  setInterval(clock, 30000);
+  if (window.phonebox && typeof window.phonebox.on === 'function') {
+    try { window.phonebox.on('state', onState); } catch (e) {}
+    try { window.phonebox.on('work', onWork); } catch (e) {}
+  } else {
+    text('sessionsDetail', 'Preview mode — real Codex data requires PhoneBox.');
+  }
+})();
+</script>
