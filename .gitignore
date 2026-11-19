@@ -1,0 +1,19 @@
+# Python / Node build and local caches
+__pycache__/
+*.pyc
+node_modules/
+.coverage
+coverage/
+.DS_Store
+Thumbs.db
+
+# NEVER publish PhoneBox user configuration / secrets
+config.json
+config.json.*
+*.token
+*.secret
+*.key
+.env
+.env.*
+secrets/
+backups/
